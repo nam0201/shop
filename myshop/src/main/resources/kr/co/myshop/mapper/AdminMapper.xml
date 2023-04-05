@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybats-3-mapper.dtd"> 
+
+<mapper namespace="kr.co.myshop.mapper.AdminMapper">
+   <select id="admingumae" resultType="HashMap">
+      select g.jumuncode, g.id,g.userid, p.price,p.title, p.juk,g.su, g.pay, g.cprice, substring(b.juso, 1, instr(b.juso,' ')-1 ) as juso ,state from gumae as g
+      inner join product as p on g .pcode=p.pcode
+      inner join baesong as b on b.id=g.bae_id order by g.id desc 
+  </select>
+  <update id="chgstate">
+    update gumae set state=#{param1} where id=#{param2}
+  </update>
+  
+  <select id="adminqna" resultType="kr.co.myshop.vo.QnaVo">
+    select*from qna order by grp desc, seq asc
+  </select>
+  <select id="getTitle" resultType="String">
+    select title from product where pcode=#{param}
+  </select>
+   <insert id="ansview_ok" parameterType="kr.co.myshop.vo.QnaVo">
+     insert into qna(userid,pcode,content,writeday,grp,seq)
+     values(#{userid},#{pcode},#{content},now(),#{grp},1)
+  </insert>
+  <select id="adminmtm" resultType="kr.co.myshop.vo.MtmVo">
+    select*from mtm order by id desc
+  </select>
+  <insert id="amtm" parameterType="kr.co.myshop.vo.AmtmVo">
+    insert into amtm(userid,content,mid,writeday)
+    values(#{userid},#{content},#{mid},now())
+  </insert>
+  <update id="setState">
+    update ${param1} set state=1 where id=#{param2}
+  </update>
+  <select id="getMember" resultType="kr.co.myshop.vo.MemberVo">
+     select * ,
+      (select sum(cprice) from gumae where userid=member.userid) as chong
+     from member where userid!='admin' order by id desc
+  </select> 
+  
+  <update id="out_ok">
+    update member set state=2 where id=#{param}
+  </update>
+  <select id="getProduct" resultType="kr.co.myshop.vo.ProductVo">
+    select*from product order by pcode asc limit #{param},20
+  </select>
+  <!-- 테이블명 param으로 받을때는 $로 하기 -->
+  <update id="productUp" parameterType="kr.co.myshop.vo.ProductVo">
+    update product set title=#{title}, price=#{price}, halin=#{halin}, juk=#{juk},
+    baesong=#{baesong},su=#{su} where id=#{id}
+  </update>
+  <select id="getChong" resultType="int">
+    select ceil( count(*)/20 ) from product;
+  </select>
+  <update id="changeimage">
+    update product ${param1} where id=#{param2}
+  </update>
+   <select id="getReview" resultType="kr.co.myshop.vo.ReviewVo">
+    select * ,
+    (select title from product where pcode=review.pcode) as title2 
+    from review order by id desc
+  </select>
+  
+  <delete id="reviewdel">
+     delete from review where id=#{param}
+  </delete>
+  <select id="admincustom" resultType="kr.co.myshop.vo.CustomVo">
+    select*from custom order by id desc
+  </select>
+   <insert id="acustom" parameterType="kr.co.myshop.vo.AcustomVo">
+    insert into acustom(userid,content,cid,writeday)
+    values(#{userid},#{content},#{cid},now())
+  </insert>
+  <update id="setJuk">
+    update member set juk=juk+${param1} where userid=#{param2}
+  </update>
+  
+   <update id="subJuk">
+    update member set juk=juk-${param1} where userid=#{param2}
+  </update>
+</mapper>

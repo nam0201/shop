@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/WEB-INF/views/common"> <!-- include 파일의 경로!! -->
+ <!-- 제외할 패턴 -->
+ <excludes>
+  <pattern>/select_add</pattern>
+  <pattern>/product/baeview</pattern>
+  <pattern>/product/jusoadd</pattern>
+  <pattern>/product/baeup</pattern>
+   <pattern>/product/chgcla*</pattern>
+   <pattern>/admin*</pattern>
+ </excludes>
+ <!-- 기본 패턴 -->
+ <decorator name="default" page="default.jsp">
+  <pattern>*</pattern> 
+ </decorator>
+ 
+ <!-- 모바일 패턴 -->
+ <decorator name="mobileDefault" page="mobileDefault.jsp">
+  <pattern>/m.*.do</pattern> 
+ </decorator>
+ 
+</decorators>
+
+ 

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybats-3-mapper.dtd"> 
+
+<mapper namespace="kr.co.myshop.mapper.ProductMapper">
+  <select id="getDae" resultType="kr.co.myshop.vo.DaeVo">
+    select*from dae order by id asc
+  </select>  
+  
+  <select id="getJung" resultType="kr.co.myshop.vo.JungVo">
+    select*from jung where daecode=#{param} order by id asc
+  </select>
+ <select id="getSo" resultType="kr.co.myshop.vo.SoVo">
+    select * from so where daejung=#{param} order by id asc
+  </select>
+  
+  <select id="getCode" resultType="int">
+    select ifnull( max(right(pcode,3) ),0)+1 from product
+    where pcode like concat(#{param},'%')
+  </select>
+  
+  <insert id="product_ok" parameterType="kr.co.myshop.vo.ProductVo">
+     insert into product(pcode,pimg,cimg,title,price,made,halin,juk,su,baesong,baeday,writeday)
+     values(#{pcode},#{pimg},#{cimg},#{title},#{price},#{made},#{halin},#{juk},#{su},#{baesong},#{baeday},now())
+  </insert>
+  
+  <select id="plist" resultType="kr.co.myshop.vo.ProductVo">
+    select * , right(adddate(curdate(),baeday),5) as bday from product where pcode like concat(#{param1},'%')
+    limit #{param2}, 24
+  </select>
+  
+  <select id="getChong" resultType="int">
+    select ceil( count(*)/24 ) from product
+    where pcode like concat(#{param1},'%') 
+  </select>
+  
+  <select id="pcontent" resultType="kr.co.myshop.vo.ProductVo">
+    select* , right(adddate(curdate(),baeday),5) as bday,
+    dayofweek( adddate(curdate(),baeday) ) as yoil
+    from product where pcode=#{param}
+  </select>
+  
+  <insert id="wish_add">
+    insert into wish(pcode,userid,writeday)
+    values(#{param1},#{param2},now())
+  </insert>
+  
+  <delete id="wish_del">
+    delete from wish where pcode=#{param1} and userid=#{param2} 
+  </delete>
+  
+  <select id="getWish" resultType="int">
+    select count(*) from wish where pcode=#{param1} and userid=#{param2} 
+  </select>
+  
+  <insert id="cart_add">
+    insert into cart(pcode,su,userid,writeday)
+    values(#{param1},#{param2},#{param3},now())
+  </insert>
+  
+    <select id="cart_check" resultType="int">
+    select count(*) from cart
+    where pcode=#{param1} and userid=#{param2}
+  </select>
+  
+  <update id="cart_up">
+    update cart set su=su+${param1}
+    where pcode=#{param2} and userid=#{param3}
+  </update>
+  <select id="getMember" resultType="kr.co.myshop.vo.MemberVo">
+    select * from member where userid=#{param}
+  </select>
+  
+  <select id="getJuso" resultType="kr.co.myshop.vo.BaesongVo">
+    select*from baesong where userid=#{param} and gibon=1
+  </select>
+  
+    <insert id="setBaesong" parameterType="kr.co.myshop.vo.BaesongVo">
+    insert into baesong(name,phone,zip,juso,juso_etc,userid,gibon)
+    values(#{name},#{phone},#{zip},#{juso},#{juso_etc},#{userid},1)
+  </insert>
+  
+  <update id="member_phone">
+    update member set phone=#{param1} where userid=#{param2}
+  </update>
+  
+  <select id="baeview" resultType="kr.co.myshop.vo.BaesongVo">
+    select * from baesong where userid=#{param} order by gibon desc
+  </select>
+  
+  <insert id="jusoadd_ok" parameterType="kr.co.myshop.vo.BaesongVo">
+    insert into baesong(name,phone,zip,juso,juso_etc,userid,gibon)
+    value(#{name},#{phone},#{zip},#{juso},#{juso_etc},#{userid},#{gibon})
+  </insert>
+  <update id="baeup_ok" parameterType="kr.co.myshop.vo.BaesongVo">
+    update baesong set name=#{name}, phone=#{phone},
+    zip=#{zip}, juso=#{juso}, juso_etc=#{juso_etc},gibon=#{gibon}
+    where id=#{id}
+  </update>
+  
+  <select id="baeup" resultType="kr.co.myshop.vo.BaesongVo">
+    select*from baesong where id=#{param}
+  </select>
+  
+  <update id="gibon">
+    update baesong set gibon=0 where userid=#{param}
+  </update>
+  
+  <delete id="baedel">
+    delete from baesong where id=#{param}
+  </delete>
+  
+  <update id="gibonchg">
+    update baesong set gibon=1 
+    where id=(select max(id) from baesong where userid=#{param})
+  </update>
+  
+  <update id="chg_ok">
+    update baesong set cla=#{param1} where id=#{param2}
+  </update>
+  
+  <select id="getJcode" resultType="int">
+    select ifnull( max( right(jumuncode,4) ) ,0)+1 from gumae
+    where jumuncode like concat(#{param},'%')
+  </select>
+  
+  <insert id="gumae_ok" parameterType="kr.co.myshop.vo.GumaeVo">
+   insert into gumae(userid,bae_id,pcode,su,juk,cprice,pay,bank,coopay,
+   card,gigan,tong,bank2,card2,gigan2,gibonpay,writeday,jumuncode)
+   values(#{userid},#{bae_id},#{pcode},#{su},#{juk},#{cprice},#{pay},#{bank},#{coopay},
+   #{card},#{gigan},#{tong},#{bank2},#{card2},#{gigan2},#{gibonpay},now(),#{jumuncode})
+  </insert>
+  
+  <select id="getGumae" resultType="kr.co.myshop.vo.GumaeVo">
+    select su,bae_id,pcode,cprice,pay from gumae where jumuncode=#{param}
+  </select>
+  <select id="getProduct" resultType="kr.co.myshop.vo.ProductVo">
+   select price,baesong, adddate(curdate(),baeday) as bday,
+    dayofweek( adddate(curdate(),baeday) ) as yoil
+    from product where pcode=#{param}
+  </select>
+  <select id="getBaesong" resultType="kr.co.myshop.vo.BaesongVo">
+    select name,phone,juso,juso_etc,cla from baesong where id=#{param}
+  </select>
+  
+  <select id="getTotal" resultType="HashMap">
+    select g.su,g.bae_id,g.pcode,g.cprice,g.pay,p.price,p.baesong,p.halin,p.title, 
+    adddate(curdate(),p.baeday) as bday ,
+    dayofweek( adddate(curdate(),p.baeday) ) as yoil,
+    b.name,b.phone,b.juso,b.juso_etc,b.cla
+    from gumae as g, product as p, baesong as b
+    where g.pcode=p.pcode and g.bae_id=b.id and jumuncode=#{param} 
+  </select>
+  
+  <!--  주문에서 사용할 금액 -->
+  <select id="imsi" resultType="HashMap">
+    select sum( (p.price-(p.price*p.halin/100))*g.su) ,
+    sum(p.baesong),sum(g.cprice) 
+    from gumae as g, product as p, baesong as b
+    where g.pcode=p.pcode and g.bae_id=b.id and jumuncode=#{param};
+  </select>
+  
+  <select id="getReview" resultType="kr.co.myshop.vo.ReviewVo">
+    select id,star,guid,title,content,writeday,pcode,
+    concat( rpad( left(userid,2) , length(userid)-2 , "*"),right(userid,2)) as userid 
+    from review where pcode=#{pcode}
+  </select>
+  <select id="getGrp" resultType="int">
+    select ifnull( max(grp), 0)+1 from qna
+  </select>
+  
+  <insert id="munwrite" parameterType="kr.co.myshop.vo.QnaVo">
+   insert into qna(userid,pcode,content,writeday,grp)
+   values(#{userid},#{pcode},#{content},now(),#{grp})
+  </insert>
+  <select id="getQna" resultType="kr.co.myshop.vo.QnaVo">
+    select*from qna where pcode=#{param} 
+    order by grp desc, seq asc
+  </select>
+  
+  <select id="getNow" resultType="kr.co.myshop.vo.ProductVo">
+    select pcode,pimg,title from product where pcode=#{param}
+  </select>
+   <update id="subjuk">
+     update member set juk=juk-${param1} where userid=#{param2}
+  </update>
+  
+</mapper>

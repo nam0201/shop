@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybats-3-mapper.dtd"> 
+
+<mapper namespace="kr.co.myshop.mapper.LoginMapper">
+   <select id="login_ok" parameterType="kr.co.myshop.vo.MemberVo" resultType="kr.co.myshop.vo.MemberVo">
+     select name, userid from member where userid=#{userid} and pwd=#{pwd} and state=0
+   </select> 
+   <select id="userid_search" resultType="String">
+    select userid from member where name=#{param1} and email=#{param2}
+  </select>
+  
+  <select id="pwd_search" resultType="String">
+    select pwd from member where name=#{param1} and email=#{param2} and userid=#{param3}
+  </select>
+</mapper>
+  
